@@ -1,0 +1,45 @@
+#!/bin/sh
+
+# Make sure we fail on any errors
+set -e
+
+# Define directories
+APP_DIR=$(dirname "$0")
+WRAPPER_JAR="$APP_DIR/gradle/wrapper/gradle-wrapper.jar"
+WRAPPER_DIR="$APP_DIR/gradle/wrapper"
+
+# Create wrapper directory if it doesn't exist
+mkdir -p "$WRAPPER_DIR"
+
+# Download gradle-wrapper.jar if it's missing
+if [ ! -f "$WRAPPER_JAR" ]; then
+    echo "gradle-wrapper.jar not found at $WRAPPER_JAR. Downloading..."
+    # Try curl first, then wget
+    if command -v curl >/dev/null 2>&1; then
+        curl -L -o "$WRAPPER_JAR" "https://raw.githubusercontent.com/gradle/gradle/v8.3.0/gradle/wrapper/gradle-wrapper.jar"
+    elif command -v wget >/dev/null 2>&1; then
+        wget -O "$WRAPPER_JAR" "https://raw.githubusercontent.com/gradle/gradle/v8.3.0/gradle/wrapper/gradle-wrapper.jar"
+    else
+        echo "Error: Neither curl nor wget was found. Cannot download gradle-wrapper.jar."
+        exit 1
+    fi
+    echo "gradle-wrapper.jar downloaded successfully."
+fi
+
+# Locate java
+if [ -n "$JAVA_HOME" ] ; then
+    JAVACMD="$JAVA_HOME/bin/java"
+else
+    JAVACMD="java"
+fi
+
+if ! command -v "$JAVACMD" >/dev/null 2>&1; then
+    echo "Error: JAVA_HOME is not set and no 'java' command could be found in your PATH."
+    exit 1
+fi
+
+# Execute gradle-wrapper
+exec "$JAVACMD" \
+  -Dorg.gradle.appname="gradlew" \
+  -classpath "$WRAPPER_JAR" \
+  org.gradle.wrapper.GradleWrapperMain "$@"

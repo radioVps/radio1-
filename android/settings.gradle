@@ -1,0 +1,13 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'RadioMix'
+apply from: file("../node_modules/@react-native/gradle-plugin/settings-plugin.gradle")
+applySettingsPlugin(settings)
+include ':app'
+includeBuild('../node_modules/@react-native/gradle-plugin')

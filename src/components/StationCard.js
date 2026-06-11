@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { theme } from '../constants/theme';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
-export function StationCard({ station, isActive, onPress }) {
+export function StationCard({ station, isActive, isPlaying, onPress }) {
   return (
     <TouchableOpacity
       style={[
@@ -23,9 +23,9 @@ export function StationCard({ station, isActive, onPress }) {
         <View style={styles.row}>
           <Text style={styles.stationName}>{station.nombre}</Text>
           {isActive && (
-            <View style={styles.liveBadge}>
+            <View style={[styles.liveBadge, isPlaying ? { backgroundColor: 'rgba(233, 69, 96, 0.25)' } : null]}>
               <View style={styles.dot} />
-              <Text style={styles.liveText}>READY</Text>
+              <Text style={styles.liveText}>{isPlaying ? 'PLAYING' : 'READY'}</Text>
             </View>
           )}
         </View>
@@ -35,9 +35,17 @@ export function StationCard({ station, isActive, onPress }) {
       </View>
 
       <View style={styles.actionContainer}>
+        {isActive && isPlaying && (
+          <View style={styles.visualizerContainer} className="visualizer-container animated-visualizer">
+            <View style={[styles.bar, styles.bar1]} className="visualizer-bar bar-1" />
+            <View style={[styles.bar, styles.bar2]} className="visualizer-bar bar-2" />
+            <View style={[styles.bar, styles.bar3]} className="visualizer-bar bar-3" />
+            <View style={[styles.bar, styles.bar4]} className="visualizer-bar bar-4" />
+          </View>
+        )}
         <View style={[styles.playButtonWrapper, { backgroundColor: isActive ? theme.colors.accent : theme.colors.secondary }]}>
           <Icon 
-            name={isActive ? 'volume-up' : 'play'} 
+            name={isActive ? (isPlaying ? 'volume-up' : 'volume-down') : 'play'} 
             size={14} 
             color="#ffffff" 
           />
@@ -114,9 +122,36 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
   actionContainer: {
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     paddingLeft: 10,
+    gap: 12,
+  },
+  visualizerContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    height: 24,
+    width: 24,
+    gap: 3,
+  },
+  bar: {
+    width: 3,
+    backgroundColor: theme.colors.accent,
+    borderRadius: 1.5,
+  },
+  bar1: {
+    height: 4,
+  },
+  bar2: {
+    height: 6,
+  },
+  bar3: {
+    height: 3,
+  },
+  bar4: {
+    height: 5,
   },
   playButtonWrapper: {
     width: 32,

@@ -269,6 +269,7 @@ export function HomeScreen() {
               key={station.id}
               station={station}
               isActive={activeStation.id === station.id}
+              isPlaying={activeStation.id === station.id && isPlaying}
               onPress={() => handleStationChange(station)}
             />
           ))}

@@ -29,24 +29,15 @@ jobs:
       - name: Install NPM Dependencies
         run: npm install
 
-      - name: Cache Gradle Dependencies
-        uses: actions/cache@v4
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-            android/app/build
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      - name: Make Gradlew Executable
-        run: chmod +x android/gradlew
+          gradle-version: '8.4'
 
       - name: Build Android Release APK
         run: |
           cd android
-          ./gradlew assembleRelease --no-daemon
+          gradle assembleRelease --no-daemon
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4

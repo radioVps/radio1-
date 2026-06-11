@@ -13,6 +13,14 @@ async function startServer() {
     res.json({ status: "ok" });
   });
 
+  // Handle preflight OPTIONS requests for stream proxy
+  app.options("/api/stream", (req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Headers", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS, HEAD");
+    res.status(204).end();
+  });
+
   // Stream Proxy endpoint for insecure streams (allows HTTP to bypass HTTPS mixed-content blocks)
   app.get("/api/stream", (req, res) => {
     const urlParam = req.query.url as string;
@@ -54,13 +62,16 @@ async function startServer() {
 
           console.log(`Stream Proxy connected to source stream [${proxyRes.statusCode}]: ${urlStr}`);
 
-          // Set standard HTTP headers for real-time audio streams
+          // Set standard HTTP and CORS headers for real-time audio streams
           const sourceContentType = proxyRes.headers["content-type"];
           res.setHeader("Content-Type", sourceContentType || "audio/mpeg");
           res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
           res.setHeader("Pragma", "no-cache");
           res.setHeader("Expires", "0");
           res.setHeader("Connection", "keep-alive");
+          res.setHeader("Access-Control-Allow-Origin", "*");
+          res.setHeader("Access-Control-Allow-Headers", "*");
+          res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS, HEAD");
 
           // Keep-Alive for continuous Icecast stream listening
           res.setHeader("X-Content-Type-Options", "nosniff");

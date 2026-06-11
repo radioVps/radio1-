@@ -53,19 +53,28 @@ export function HomeScreen() {
     async function loadSavedState() {
       await AudioService.setupPlayer();
       
+      const savedStationId = await StorageService.getLastStationId();
       const savedVolume = await StorageService.getVolume();
+      const savedPlayState = await StorageService.getPlayingState();
 
       if (savedVolume !== null) {
         setVolume(savedVolume);
         await AudioService.setVolume(savedVolume);
       }
 
-      // Always load "Ecos del Mar" (STATIONS[0]) automatically when the app starts
-      const targetStation = STATIONS[0];
-      setActiveStation(targetStation);
+      let targetStation = STATIONS[0];
+      if (savedStationId) {
+        const found = STATIONS.find(s => s.id === savedStationId);
+        if (found) {
+          targetStation = found;
+          setActiveStation(found);
+        }
+      }
 
-      // Automatically play Ecos del Mar on start
-      await handleStationChange(targetStation, savedVolume !== null ? savedVolume : volume);
+      // If station had autoplay or playing state saved before closing, re-initialize playback
+      if (targetStation.autoplay || savedPlayState) {
+        await handleStationChange(targetStation, savedVolume);
+      }
     }
     loadSavedState();
   }, []);
@@ -157,7 +166,7 @@ export function HomeScreen() {
       {/* 1. Header Banner */}
       <View style={styles.bannerContainer}>
         <Image
-          source={bannerError ? require('../assets/images/regenerated_image_1780884894287.png') : { uri: BANNER_URL }}
+          source={bannerError ? require('../assets/default_banner.png') : { uri: BANNER_URL }}
           style={styles.bannerImage}
           resizeMode="cover"
           onError={() => setBannerError(true)}
@@ -269,7 +278,6 @@ export function HomeScreen() {
               key={station.id}
               station={station}
               isActive={activeStation.id === station.id}
-              isPlaying={activeStation.id === station.id && isPlaying}
               onPress={() => handleStationChange(station)}
             />
           ))}

@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Radio Mix",
+  "description": "Professional Android Radio Streaming application featuring background audio, auto-reconnect, and visual theme settings.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
